@@ -150,6 +150,33 @@ CMailBox.cpp.s:
 	$(MAKE) -f CMakeFiles/domaci_uloha_5.dir/build.make CMakeFiles/domaci_uloha_5.dir/CMailBox.cpp.s
 .PHONY : CMailBox.cpp.s
 
+OtherClasses.o: OtherClasses.cpp.o
+
+.PHONY : OtherClasses.o
+
+# target to build an object file
+OtherClasses.cpp.o:
+	$(MAKE) -f CMakeFiles/domaci_uloha_5.dir/build.make CMakeFiles/domaci_uloha_5.dir/OtherClasses.cpp.o
+.PHONY : OtherClasses.cpp.o
+
+OtherClasses.i: OtherClasses.cpp.i
+
+.PHONY : OtherClasses.i
+
+# target to preprocess a source file
+OtherClasses.cpp.i:
+	$(MAKE) -f CMakeFiles/domaci_uloha_5.dir/build.make CMakeFiles/domaci_uloha_5.dir/OtherClasses.cpp.i
+.PHONY : OtherClasses.cpp.i
+
+OtherClasses.s: OtherClasses.cpp.s
+
+.PHONY : OtherClasses.s
+
+# target to generate assembly for a file
+OtherClasses.cpp.s:
+	$(MAKE) -f CMakeFiles/domaci_uloha_5.dir/build.make CMakeFiles/domaci_uloha_5.dir/OtherClasses.cpp.s
+.PHONY : OtherClasses.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -189,6 +216,9 @@ help:
 	@echo "... CMailBox.o"
 	@echo "... CMailBox.i"
 	@echo "... CMailBox.s"
+	@echo "... OtherClasses.o"
+	@echo "... OtherClasses.i"
+	@echo "... OtherClasses.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

@@ -1,199 +1,245 @@
 #ifndef __PROGTEST__
-#include <cstring>
-#include <cstdlib>
-#include <cstdio>
-#include <cassert>
-#include <cctype>
-#include <cmath>
 #include <iostream>
-#include <iomanip>
-#include <sstream>
 #include <set>
 #include <list>
 #include <map>
 #include <vector>
-#include <queue>
 #include <string>
 #include <algorithm>
-#include <memory>
-#include <functional>
 #include <stdexcept>
+#include "OtherClasses.cpp"
 #endif /* __PROGTEST */
 
 using namespace std;
 
-#ifndef __PROGTEST__
-class CTimeStamp
-{
-public:
-    CTimeStamp ( int year, int month, int day, int hour, int minute, int sec )
-    {
-        m_time[0] = year;
-        m_time[1] = month;
-        m_time[2] = day;
-        m_time[3] = hour;
-        m_time[4] = minute;
-        m_time[5] = sec;
-    }
-
-    int Compare ( const CTimeStamp & x ) const
-    {
-        for (int i = 0; i < 6; i++)
-        {
-            if (m_time[i] < x.m_time[i])
-                return -1;
-            else if (m_time[i] > x.m_time[i])
-                return 1;
-        }
-        return 0;
-    }
-
-    friend ostream & operator << ( ostream & os, const CTimeStamp & x )
-    {
-        os << x.m_time[0] << '-' << x.m_time[1] << '-' << x.m_time[2] << ' ' << x.m_time[3] << ':' << x.m_time[4] << ':'
-        << x.m_time[5];
-        return os;
-    }
-
-private:
-    int m_time[6]{};
-};
 //=================================================================================================
-class CMailBody
-{
-public:
-    CMailBody ( int size, const char * data )
-    {
-        m_Size = size;
-        m_Data = new char[m_Size];
-        for (int i = 0; i < m_Size; i++)
-        {
-            m_Data[i] = data[i];
-        }
-    }
-
-    CMailBody(const CMailBody &x)
-    {
-        m_Size = x.m_Size;
-        m_Data = new char[m_Size];
-        for (int i = 0; i < m_Size; i++)
-        {
-            m_Data[i] = x.m_Data[i];
-        }
-    }
-
-    CMailBody &operator = (const CMailBody &x)
-    {
-        if (this == &x)
-            return *this;
-
-        delete [] m_Data;
-        m_Size = x.m_Size;
-        m_Data = new char[m_Size];
-        for (int i = 0; i < m_Size; i++)
-        {
-            m_Data[i] = x.m_Data[i];
-        }
-        return *this;
-    }
-
-    ~CMailBody()
-    {
-        delete [] m_Data;
-    }
-
-    friend ostream & operator << ( ostream & os, const CMailBody & x )
-    {
-        return os << "mail body: " << x . m_Size << " B";
-    }
-
-private:
-    int m_Size;
-    char * m_Data;
-};
-//=================================================================================================
-class CAttach
-{
-public:
-    CAttach ( int x )
-            : m_X (x),
-              m_RefCnt ( 1 )
-    {
-    }
-    void AddRef () const
-    {
-        m_RefCnt ++;
-    }
-    void Release () const
-    {
-        if ( !--m_RefCnt )
-            delete this;
-    }
-private:
-    int m_X;
-    mutable int m_RefCnt;
-    CAttach ( const CAttach & x );
-    CAttach & operator = ( const CAttach   & x );
-    ~CAttach () = default;
-    friend ostream & operator << ( ostream & os, const CAttach & x )
-    {
-        return os << "attachment: " << x . m_X << " B";
-    }
-};
-//=================================================================================================
-#endif /* __PROGTEST__, DO NOT remove */
-
 
 class CMail
 {
 public:
+    // constructor
     CMail ( const CTimeStamp & timeStamp,
             const string & from,
             const CMailBody  & body,
             const CAttach    * attach )
             : m_TimeStamp(timeStamp), m_Sender(from), m_Body(body)
     {
-        
+        if(attach) {
+            m_Attach = attach;
+            m_Attach->AddRef();
+        } else
+            m_Attach = nullptr;
     }
 
-    const string & From () const;
-    const CMailBody  & Body () const;
-    const CTimeStamp & TimeStamp () const;
-    const CAttach* Attachment () const;
+    // getters
+    const string & From () const
+    {
+        return m_Sender;
+    }
+    const CMailBody  & Body () const
+    {
+        return m_Body;
+    }
+    const CTimeStamp & TimeStamp () const
+    {
+        return m_TimeStamp;
+    }
+    const CAttach* Attachment () const
+    {
+        return m_Attach;
+    }
 
-    friend ostream & operator << (ostream & os, const CMail & x );
+    // < > == compare mails by time
+    bool operator < (const CMail &mail) const
+    {
+        return m_TimeStamp.Compare(mail.m_TimeStamp) < 0;
+    }
+    bool operator > (const CMail &mail) const
+    {
+        return m_TimeStamp.Compare(mail.m_TimeStamp) > 0;
+    }
+    bool operator == (const CMail &mail) const
+    {
+        return m_TimeStamp.Compare(mail.m_TimeStamp) == 0;
+    }
+
+    // output operator
+    friend ostream & operator << (ostream & os, const CMail & x )
+    {
+        os << x.m_TimeStamp << ' ' << x.m_Sender << ' ' << x.m_Body;
+        if (x.m_Attach)
+            os << " + " << *x.m_Attach;
+        return os;
+    }
 private:
-    CTimeStamp m_TimeStamp;
-    string m_Sender;
-    CMailBody m_Body;
-    CAttach *m_Attach;
+    CTimeStamp m_TimeStamp;     // keeps time
+    string m_Sender;            // keeps sender's name
+    CMailBody m_Body;           // body of the mail
+    const CAttach *m_Attach;    // pointer to attach to the mail
 };
+
 //=================================================================================================
-//class CMailBox
-//{
-//public:
-//    CMailBox ();
-//    bool Delivery ( const CMail & mail );
-//    bool NewFolder ( const string & folderName );
-//    bool MoveMail ( const string & fromFolder, const string & toFolder );
-//    list<CMail> ListMail ( const string & folderName, const CTimeStamp & from, const CTimeStamp & to ) const;
-//    set<string> ListAddr ( const CTimeStamp & from, const CTimeStamp & to ) const;
-//private:
-//    // todo
-//};
-////=================================================================================================
-//#ifndef __PROGTEST__
-//static string showMail ( const list<CMail> & l )
-//{
-//    ostringstream oss;
-//    for ( const auto & x : l )
-//        oss << x << endl;
-//    return oss . str ();
-//}
-//static string showUsers ( const set<string> & s )
-//{
-//    ostringstream oss;
-//    for ( const auto & x : s )
-//        oss << x << endl;
-//    return oss . str ();
-//}
+
+/**
+ * folder keeps mails sorted by time
+ */
+class CFolder
+{
+public:
+    string m_Name;          // name
+    vector<CMail> m_Mails;  // vector of mails
+
+    // default constuctor
+    CFolder()
+    {
+        m_Name = "";
+    }
+
+    // constructor creates folder with a name
+    explicit CFolder(const string & name)
+    {
+        m_Name = name;
+    }
+
+    // copies content of folder dir into the current folder
+    CFolder &operator = (const CFolder & dir)
+    {
+        if (this == &dir)
+            return *this;
+
+        m_Name = dir.m_Name;
+        m_Mails.erase(m_Mails.begin(), m_Mails.end());
+
+        for (const auto& m_Mail : dir.m_Mails)
+        {
+            m_Mails.push_back(m_Mail);
+        }
+
+        return *this;
+    }
+
+    // adds mail into the wright position (by time)
+    void AddMessage(const CMail & mail)
+    {
+        m_Mails.insert(lower_bound(m_Mails.begin(), m_Mails.end(), mail), mail);
+    }
+};
+
+//=================================================================================================
+
+class CMailBox
+{
+public:
+    // default constructor
+    CMailBox ()
+    {
+        CFolder temp("inbox");
+        m_Folders.insert(pair<string, CFolder>("inbox", temp));
+    }
+
+    // saves mail in "inbox" folder
+    bool Delivery ( const CMail & mail )
+    {
+        m_Folders["inbox"].AddMessage(mail);
+
+        return true;
+    }
+
+    // creates folder with name folderName
+    bool NewFolder ( const string & folderName )
+    {
+        if (m_Folders[folderName].m_Name == folderName)
+            return false;
+
+        CFolder temp(folderName);
+        m_Folders[folderName] = temp;
+
+        return true;
+    }
+
+    // moves all mails from the directory fromFolder to the toFolder
+    bool MoveMail ( const string & fromFolder, const string & toFolder )
+    {
+        CFolder *from, *to;
+        try {
+            from = &m_Folders.at(fromFolder);
+            to = &m_Folders.at(toFolder);
+        }
+        catch (out_of_range &e)
+        {
+            return false;
+        }
+
+        vector<CMail>::iterator iter;
+        for (iter = from->m_Mails.begin(); iter != from->m_Mails.end(); iter++)
+        {
+            to->AddMessage(*iter);
+        }
+        from->m_Mails.erase(from->m_Mails.begin(), from->m_Mails.end());
+
+        return true;
+    }
+
+    /**
+     * method returns all mails from folder folderName between from and to
+     * @param folderName : listed folder
+     * @param from : lower bound of time
+     * @param to : upper bound of time
+     * @return : list of mails
+     */
+    list<CMail> ListMail (const string & folderName, const CTimeStamp & from, const CTimeStamp & to ) const
+    {
+        list<CMail> result;
+        CFolder * currentFolder;
+        try {
+            currentFolder = const_cast<CFolder *>(&m_Folders.at(folderName));
+        }
+        catch (out_of_range &e)
+        {
+            return result;
+        }
+
+        CMail firstMail(from, "", CMailBody(0, ""), nullptr);
+        CMail lastMail(to, "", CMailBody(0, ""), nullptr);
+
+        vector<CMail>::iterator iter;
+        for (iter = lower_bound(currentFolder->m_Mails.begin(), currentFolder->m_Mails.end(), firstMail);
+        iter != upper_bound(currentFolder->m_Mails.begin(), currentFolder->m_Mails.end(), lastMail); iter++)
+        {
+            result.push_back(*iter);
+        }
+
+        return result;
+    }
+
+    /**
+     * method returns names of users, that sent mails to the mailbox between from and to
+     * @param from : lower bound of time
+     * @param to : upper bound of time
+     * @return : list of users' names
+     */
+    set<string> ListAddr (const CTimeStamp & from, const CTimeStamp & to ) const
+    {
+        set<string> result;
+
+        for (auto &i: m_Folders)
+        {
+            CMail firstMail(from, "", CMailBody(0, ""), nullptr);
+            CMail lastMail(to, "", CMailBody(0, ""), nullptr);
+
+            for (auto iter = lower_bound(i.second.m_Mails.begin(), i.second.m_Mails.end(), firstMail);
+                 iter != upper_bound(i.second.m_Mails.begin(), i.second.m_Mails.end(), lastMail); iter++)
+            {
+                result.insert(iter->From());
+            }
+        }
+
+        return result;
+    }
+
+private:
+    map<string, CFolder> m_Folders; // map keeps folder's with mails
+};
+
+//=================================================================================================
+

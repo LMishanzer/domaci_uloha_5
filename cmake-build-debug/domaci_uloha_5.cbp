@@ -85,6 +85,9 @@
 		<Unit filename="/home/mike/PA2/domaci_uloha_5/CMailBox.cpp">
 			<Option target="domaci_uloha_5"/>
 		</Unit>
+		<Unit filename="/home/mike/PA2/domaci_uloha_5/OtherClasses.cpp">
+			<Option target="domaci_uloha_5"/>
+		</Unit>
 		<Unit filename="/home/mike/PA2/domaci_uloha_5/main.cpp">
 			<Option target="domaci_uloha_5"/>
 		</Unit>

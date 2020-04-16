@@ -3,4 +3,4 @@ project(domaci_uloha_5)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(domaci_uloha_5 main.cpp CMailBox.cpp)
+add_executable(domaci_uloha_5 main.cpp CMailBox.cpp OtherClasses.cpp)
