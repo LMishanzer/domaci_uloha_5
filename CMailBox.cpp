@@ -133,8 +133,7 @@ public:
     // default constructor
     CMailBox ()
     {
-        CFolder temp("inbox");
-        m_Folders.insert(pair<string, CFolder>("inbox", temp));
+        m_Folders.insert(pair<string, CFolder>("inbox", CFolder("inbox")));
     }
 
     // saves mail in "inbox" folder
@@ -151,8 +150,7 @@ public:
         if (m_Folders[folderName].m_Name == folderName)
             return false;
 
-        CFolder temp(folderName);
-        m_Folders[folderName] = temp;
+        m_Folders[folderName] = CFolder(folderName);
 
         return true;
     }
@@ -170,10 +168,9 @@ public:
             return false;
         }
 
-        vector<CMail>::iterator iter;
-        for (iter = from->m_Mails.begin(); iter != from->m_Mails.end(); iter++)
+        for (auto & m_Mail : from->m_Mails)
         {
-            to->AddMessage(*iter);
+            to->AddMessage(m_Mail);
         }
         from->m_Mails.erase(from->m_Mails.begin(), from->m_Mails.end());
 
@@ -199,11 +196,12 @@ public:
             return result;
         }
 
+        // mails to compare
         CMail firstMail(from, "", CMailBody(0, ""), nullptr);
         CMail lastMail(to, "", CMailBody(0, ""), nullptr);
 
-        vector<CMail>::iterator iter;
-        for (iter = lower_bound(currentFolder->m_Mails.begin(), currentFolder->m_Mails.end(), firstMail);
+        // push all mails between firstMail and lastMail
+        for (auto iter = lower_bound(currentFolder->m_Mails.begin(), currentFolder->m_Mails.end(), firstMail);
         iter != upper_bound(currentFolder->m_Mails.begin(), currentFolder->m_Mails.end(), lastMail); iter++)
         {
             result.push_back(*iter);
@@ -222,11 +220,13 @@ public:
     {
         set<string> result;
 
+        // visit every folder
         for (auto &i: m_Folders)
         {
             CMail firstMail(from, "", CMailBody(0, ""), nullptr);
             CMail lastMail(to, "", CMailBody(0, ""), nullptr);
 
+            // push all senders' names between firstMail and lastMail
             for (auto iter = lower_bound(i.second.m_Mails.begin(), i.second.m_Mails.end(), firstMail);
                  iter != upper_bound(i.second.m_Mails.begin(), i.second.m_Mails.end(), lastMail); iter++)
             {
